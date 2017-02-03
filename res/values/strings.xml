@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="app_name">Your Local Weather</string>
+	<string name="hello_world">Hello world!</string>
+	<string name="action_settings">Settings</string>
+	<string name="temperature">Temperature</string>
+	<string name="conditions">Conditions</string>
+	<string name="location">Location</string>
+	<string name="desc">A picture of a cloud</string>
+	<string name="chilly">Chill factor</string>
+	<string name="logo">The Yahoo logo</string>
+	<string name="forecast">Tomorrow</string>
+	<string name="sun_times">Sunrise and sunset</string>
+	<string name="aboot">Aboot</string>
+	<string name="back_image">The wallpaper for the app</string>
+	<string name="hi_low">High : Low</string>
+
+</resources>

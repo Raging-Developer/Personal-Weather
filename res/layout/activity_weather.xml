@@ -1,0 +1,103 @@
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+		android:id="@+id/rel_back"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"						
+		tools:context="app.personal_weather.Weather_Activity" >				
+
+		<ImageView
+			android:id="@+id/weather_icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_centerHorizontal="true"
+			android:contentDescription="@string/desc"
+			android:src="@drawable/icon_na" />
+
+		<TextView
+			android:id="@+id/temperature_tv"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/weather_icon"
+			android:layout_centerHorizontal="true"
+			android:text="@string/temperature"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textColor="#BCBCBA"
+			android:textStyle="bold" />
+
+		<TextView
+			android:id="@+id/location_tv"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/conditions_tv"
+			android:layout_centerHorizontal="true"
+			android:text="@string/location"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textColor="#BCBCBA" />
+
+		<ImageView
+			android:id="@+id/logoView1"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_centerHorizontal="true"
+			android:contentDescription="@string/logo" />
+
+		<TextView
+			android:id="@+id/chill_factor"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@+id/temperature_tv"
+			android:layout_alignParentEnd="true"
+			android:layout_toEndOf="@+id/temperature_tv"
+			android:paddingEnd="0dp"
+			android:paddingStart="15dp"
+			android:text="@string/chilly"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:textColor="#BCBCBA" />
+
+		<TextView
+			android:id="@+id/conditions_tv"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/temperature_tv"
+			android:layout_centerHorizontal="true"
+			android:paddingTop="15dp"
+			android:text="@string/conditions"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textColor="#BCBCBA" />
+
+		<TextView
+            android:id="@+id/forecast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/location_tv"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="@string/forecast"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#BCBCBA" />						
+			
+		<ListView 
+			android:id="@+id/fore_hi_low"
+			android:layout_width="fill_parent" 
+		    android:layout_height="70dp"		            
+		    android:layout_below="@+id/forecast"
+		    android:gravity="center"                        
+		    android:text="@string/hi_low" 
+		    android:textAppearance="?android:attr/textAppearanceMedium" 
+		    android:textColor="#BCBCBA" >
+		    </ListView>						
+		
+		<TextView
+			android:id="@+id/sun_up_down"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/fore_hi_low"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="7dp"
+			android:text="@string/sun_times"
+			android:textColor="#BCBCBA" />				
+		
+	</RelativeLayout>
+
