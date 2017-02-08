@@ -11,11 +11,10 @@
 		android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission
 		android:name="android.permission.ACCESS_FINE_LOCATION" />
-	
 
-	<uses-sdk
-		android:minSdkVersion="22"
-		android:targetSdkVersion="23" />
+	<uses-feature
+		android:name="android.hardware.location.gps" />
+
 
 	<application
 		android:allowBackup="true"

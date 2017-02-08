@@ -19,7 +19,7 @@ import app.personal_weather.data.Channel;
  * @author Christopher D. Harte
  *
  */
-public class Yahoo_feed 
+class Yahoo_feed
 {   
     private Exception error;  
     private Weather_Activity weather;  
@@ -28,7 +28,7 @@ public class Yahoo_feed
      * Query the yahoo api and return a JSON of the endpoint. 
      * @param weather The existing instance of the Weather_Activity
      */
-    public Yahoo_feed(Weather_Activity weather)
+    Yahoo_feed(Weather_Activity weather)
     {
         super();
         this.weather = weather;
@@ -40,7 +40,7 @@ public class Yahoo_feed
      * Queries the weather server and loads up the JSON object from an async task
      * @param new_location String
      */
-    public void refresh (String new_location) 
+    void refresh (String new_location)
     {        
         new AsyncTask<String, Void, String>()        
         {
