@@ -73,6 +73,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
     private TextView tomorrow;
     private TextView astro;
     private RelativeLayout rel_back;
+    private final int REQ_CODE = 111;
 
     //Heap when I have to, otherwise stack.
     private ProgressDialog dialog;
@@ -148,11 +149,9 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
      * I currently have two interfaces, one for yahoo, which works when it feels like
      * and one for worldweatheronline, which gave me so much trouble I refuse to abandon it,
      * even though they no longer do free api keys, so I will have to.
-     * (non-Javadoc)
      *
-     * @see com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks#onConnected(android.os.Bundle)
+     * @param con_hint Bundle
      */
-
     @Override public void onConnected(Bundle con_hint)
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -163,7 +162,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
             {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.INTERNET,
-                        Manifest.permission.ACCESS_NETWORK_STATE}, 1);
+                        Manifest.permission.ACCESS_NETWORK_STATE}, REQ_CODE);
             }
         }
 
@@ -192,7 +191,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
         try
         {
-            //There is a known problem with getFromLocation timing out. This is a google fault, not mine
             address_info = geo.getFromLocation(latitude, longitude, 1);
         }
         catch (IOException e)
@@ -220,6 +218,28 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
             yahoo_weather.refresh(yahoo_location);
 //            wunder_weather.refresh(country, city);
+        }
+    }
+
+    /**
+     * When you request permissions you get a call back code, this will allow everything without crashing.
+     *
+     * @param req_code int
+     * @param perms String[]
+     * @param grants int[]
+     */
+    @Override public void onRequestPermissionsResult(int req_code, String[] perms, int[] grants)
+    {
+        switch (req_code)
+        {
+            case REQ_CODE:
+                if(grants[0] != PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(this, "Location access denied", Toast.LENGTH_LONG).show();
+                }
+            break;
+            default:
+                super.onRequestPermissionsResult(req_code, perms, grants);
         }
     }
 
@@ -277,7 +297,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         JSONArray fore_obj = forecast.getCode_obj();
 
         // Not everything of use comes from the yahoo api...
-        // TODO the Locality does not always contain the city, so use adminArea
         String city = address_info.get(0).getLocality();
         String town = address_info.get(0).getSubLocality();
         String street = address_info.get(0).getThoroughfare();
@@ -436,8 +455,8 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        int device_width = metrics.widthPixels;
-        int device_height = metrics.heightPixels;
+//        int device_width = metrics.widthPixels;
+//        int device_height = metrics.heightPixels;
 
         //Relative on portrait, inside a scroll on landscape but still rel_back (Very clever)
         Drawable draw_back_image = res.getDrawable(R.drawable.night_time, getTheme());
