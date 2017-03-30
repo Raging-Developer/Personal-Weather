@@ -222,7 +222,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
     }
 
     /**
-     * When you request permissions you get a call back code, this will everything is allowed without crashing.
+     * When you request permissions you get a call back code, this will allow everything without crashing.
      *
      * @param req_code int
      * @param perms String[]
