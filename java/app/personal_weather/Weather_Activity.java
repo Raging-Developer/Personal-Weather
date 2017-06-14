@@ -95,7 +95,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
 
         // Because I am using their api, I have to include this, 
-        //even though everything about yahoo is shit.                         
+        //even though everything about yahoo is liable to being hacked.
         logo_link.setImageResource(R.drawable.yahoo_white);
         logo_link.setOnClickListener(new View.OnClickListener()
         {
@@ -115,8 +115,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         dialog.show();
 
         //The evil ones have deprecated the location listener, now we have to use
-        //their shitty api so they can follow everybody who uses this app.
-        //And have to use shitty code like this.
+        //their invidious api so they can follow everybody who uses this app.
         api_client = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
