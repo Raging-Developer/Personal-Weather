@@ -15,7 +15,7 @@ import app.personal_weather.data.Channel;
 
 /**
  * The class for getting the weather from the yahoo api
- * which has now shuttered the public call, so they can go fuck.
+ * which has now shuttered the public call, or not, since it is open again.
  * @author Christopher D. Harte
  *
  */
@@ -33,8 +33,6 @@ class Yahoo_feed
         super();
         this.weather = weather;
     }
-    
-
 
     /**
      * Queries the weather server and loads up the JSON object from an async task
@@ -49,7 +47,6 @@ class Yahoo_feed
                 //The query and endpoint are taken from the yahoo developer site.
                 String query = String.format("select * from weather.forecast where woeid in "
                                              +"(select woeid from geo.places(1) where text=\"%s\") and u='c'", params[0]);
-
                 
                 String endpoint = String.format("https://query.yahooapis.com/v1/public/yql?q=%s&format=json",
                                                  Uri.encode(query));                  
@@ -67,18 +64,13 @@ class Yahoo_feed
                     while ((line = reader.readLine()) != null)
                     {
                         result.append(line);
-                        
-                    }                                                                  
-                    
+                    }
                     return result.toString();
-
                 }
                 catch (Exception e)
                 {
                     error = e;
-                    
                 }
-                
                 return null;
             }
 
@@ -101,18 +93,14 @@ class Yahoo_feed
                     chan.populate(q_result.optJSONObject("results").optJSONObject("channel"));                    
  
                     weather.feed_success(chan);
-                    
                 }
                 catch (JSONException e)
                 {
                     weather.feed_failure(e);
                 } 
             }
-            
         }.execute(new_location); 
-    }            
-    
-    
+    }
 }
 
 

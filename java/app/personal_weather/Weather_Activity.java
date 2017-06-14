@@ -46,16 +46,12 @@ import app.personal_weather.data.Forecast;
 import app.personal_weather.data.Item;
 import app.personal_weather.data.Units;
 import app.personal_weather.data.Wind;
-import app.personal_weather.data.Wund_txt;
-import app.personal_weather.data.Wunder_data;
 
 
 /**
  * Turns out LocationListener is an interface, this means it cannot be
  * instantiated, only implemented. The activity has to implement it.
- * Undocumented and registered as two seperate bugs on google. Why is it called
- * google, because the word 'evil nazi fuckers who are worse than a thousand
- * hitlers' was already taken, by MicroSoft.
+ * Undocumented and registered as two seperate bugs on google.
  *
  * @author Christopher D. Harte
  *
@@ -113,10 +109,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
             }
         });
 
-//        This is for use with Eclipse, Studio debugger will stop at a breakpoint.
-//        android.os.Debug.waitForDebugger();
-
-
         // This might take some time
         dialog = new ProgressDialog(this);
         dialog.setMessage("Give me a few secs...");
@@ -130,7 +122,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-
     }
 
     @Override protected void onStart()
@@ -147,8 +138,8 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
     /**
      * I currently have two interfaces, one for yahoo, which works when it feels like
-     * and one for worldweatheronline, which gave me so much trouble I refuse to abandon it,
-     * even though they no longer do free api keys, so I will have to.
+     * and one for Wunderweather, which is not working. Yahoo is keeping its weather api on line so the
+     * other one is just incase they change their mind, again. Apr 2017
      *
      * @param con_hint Bundle
      */
@@ -156,9 +147,9 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
-            int fuckup1 = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            int cluckup1 = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
 
-            if (fuckup1 != PackageManager.PERMISSION_GRANTED)
+            if (cluckup1 != PackageManager.PERMISSION_GRANTED)
             {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.INTERNET,
@@ -167,17 +158,19 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         }
 
         Location location = LocationServices.FusedLocationApi.getLastLocation(api_client);
-
         Yahoo_feed yahoo_weather = new Yahoo_feed(this);
-//        Wunder_weather_api wunder_weather = new Wunder_weather_api(this);
         Geocoder geo = new Geocoder(this, Locale.getDefault());
 
-        //Ho Chi Minh city
+        //Ho Chi Minh city just because it is unusual
 //        double latitude = 10.777416;
 //        double longitude = 106.639366;
-        //new york
+        //new york for the sceptic tanks
 //        double latitude = 40.7127;
 //        double longitude = -74.0059;
+        //New zealand because I am cyclone chasing
+//        double latitude = -38.140693;
+//        double longitude = 176.253784;
+        //Local
         double latitude = 53.5333;
         double longitude = -2.2833;
 
@@ -217,12 +210,11 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
             String yahoo_location = "(" + latitude + ", " + longitude + ")"; //Should I want to do it by lat/lon
 
             yahoo_weather.refresh(yahoo_location);
-//            wunder_weather.refresh(country, city);
         }
     }
 
     /**
-     * When you request permissions you get a call back code, this will everything is allowed without crashing.
+     * When you request permissions you get a call back code, this will make sure everything is allowed without crashing.
      *
      * @param req_code int
      * @param perms String[]
@@ -265,7 +257,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
      * @param channel Channel object
      */
     public void feed_success(Channel channel)
-//    public void feed_success(Wunder_data weather_data)
     {
         dialog.dismiss();
 
@@ -294,6 +285,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         String forecast_date = forecast.getDate();
         String forecast_day = forecast.getDay();
         String forecast_forc = forecast.getDesc();
+        int forecast_code = forecast.getCode();
         JSONArray fore_obj = forecast.getCode_obj();
 
         // Not everything of use comes from the yahoo api...
@@ -356,10 +348,15 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         int icon_res = res.getIdentifier("drawable/icon_" + cond_code, null, getPackageName());
         Drawable icon = res.getDrawable(icon_res, getTheme());
 
+        String[] for_locals = res.getStringArray(R.array.local_conditions);
+        String display_for_locals = for_locals[cond_code];
+        forecast_forc = for_locals[forecast_code];
+
         weather_icon.setImageDrawable(icon);
         temperature.setText(temp + "\u00B0" + units);
         chill_factor.setText("(but feels like " + chill + "\u00B0 " + " in a " + speed + "kph wind)");
-        conditions.setText(desc);
+        //conditions.setText(desc);
+        conditions.setText(display_for_locals);
         location_text_view.setText("Which is not bad for " + place + "\n");
         tomorrow.setText("Tomorrow, " + forecast_day + " " + forecast_date + " will be\n" + forecast_forc);
         astro.setText("Sunrise is at " + sunrise + "\nand sunset is " + sunset);
@@ -387,12 +384,13 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
             }
         }
 
-        /**
-         * Depending on orientation we need to use different layouts.
+
+         /* Depending on orientation we need to use different layouts.
          * Landscape is a textView that goes inside the scrollView layout.
          * Portrait is a listView that goes inside the relativeView layout.
          * (Because you cannot have one scroll item inside another).
          */
+
         if (device_width > device_height)
         {
             //Landscape, use string builder with line breaks                        
@@ -420,56 +418,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
 
     /**
-     * If I decide to use underground weather rather than yahoo, I will
-     * have to use this method instead.
-     * @param weather_data Wunder_data
-     */
-    public void wund_success(Wunder_data weather_data)
-    {
-        dialog.dismiss();
-
-        Wund_txt wund_text = weather_data.getWund_text_forecast();
-
-        String descrip = wund_text.getTxt_metric();
-
-        Resources res = getResources();
-
-        // Not everything of use comes from the yahoo api...
-        String city = address_info.get(0).getLocality();
-        String town = address_info.get(0).getSubLocality();
-        String street = address_info.get(0).getThoroughfare();
-
-        String place = street;
-
-        //We do not always get a street or a town, but we should have a city
-        if (street == null)
-        {
-            place = town;
-
-            if (town == null)
-            {
-                place = city;
-            }
-        }
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-//        int device_width = metrics.widthPixels;
-//        int device_height = metrics.heightPixels;
-
-        //Relative on portrait, inside a scroll on landscape but still rel_back (Very clever)
-        Drawable draw_back_image = res.getDrawable(R.drawable.night_time, getTheme());
-        rel_back.setBackground(draw_back_image);
-
-        location_text_view.setText("Which is not bad for " + place + "\n");
-        conditions.setText(descrip);
-
-
-    }
-
-
-    /**
      * If there is a problem with the feed and an incoming message toast them.
      * No need to override the Exception.message at all, that is just adding an
      * extra level of inheritance.
@@ -482,7 +430,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
         Toast.makeText(this, "Ooops... " + e.getMessage(), Toast.LENGTH_LONG)
                 .show();
-
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu)

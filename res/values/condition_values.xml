@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="local_conditions">
+        <item>Danger! Low flying houses</item>
+        <item>Bad weather, but still somewhere nice</item>
+        <item>Hang on to your hats, its a biggy</item>
+        <item>Igor, the winch. Catch the lightening</item>
+        <item>Angry Thor make lights and noise</item>
+        <item>Falling water and flakes</item>
+        <item>Falling water and slush</item>
+        <item>Falling flakes, then water</item>
+        <item>Still not raining properly, despite the cold</item>
+        <item>Can not be bothered to rain properly</item>
+        <item>Still raining despite the cold</item>
+        <item>I\'m singing in the rain, or not</item>
+        <item>I\'m singing in the rain, or not</item>
+        <item>Like nature\'s dandruff</item>
+        <item>Bits of flakes here and there</item>
+        <item>Flakes going horizontal</item>
+        <item>Christmassy if December, miserable if not</item>
+        <item>Frozen rain</item>
+        <item>Melting flakes</item>
+        <item>Where is this, the desert?</item>
+        <item>No idea, cannot see a bloody thing</item>
+        <item>Look, the sky is poo coloured</item>
+        <item>Put that fire out!</item>
+        <item>Hold on to your hats</item>
+        <item>Hold on to something solid</item>
+        <item>Cold as a witch\'s tit</item>
+        <item>Overcast, just like the North</item>
+        <item>Mostly miserable, but dark</item>
+        <item>Mostly miserable and dull</item>
+        <item>Partly miserable, but dark</item>
+        <item>Partly miserable and dull</item>
+        <item>If it was day you could see freedom</item>
+        <item>Great, all the white people are getting naked</item>
+        <item>Could be worse, if it was not so dark</item>
+        <item>Could be worse, it could be dark</item>
+        <item>Water and lumps, where did that come from?</item>
+        <item>Damn this heat! Oh go on then, lager for me</item>
+        <item>Isolated thunder, so only me then</item>
+        <item>Thunder not for everybody, just a few</item>
+        <item>Thunder not for everybody, just a few</item>
+        <item>Rain, not for everybody, just a few</item>
+        <item>Christmassy if December, serious problems if not</item>
+        <item>Flakes falling here and there</item>
+        <item>Christmassy if December, serious problems if not</item>
+        <item>Partly cloudy, your part obviously</item>
+        <item>Rain and noise everywhere</item>
+        <item>Come back at Christmas</item>
+        <item>Rain and noise here and nowhere else</item>
+    </string-array>
+</resources>
