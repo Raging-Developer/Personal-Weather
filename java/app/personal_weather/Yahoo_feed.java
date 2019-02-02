@@ -1,22 +1,32 @@
 package app.personal_weather;
 
+import android.os.AsyncTask;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.net.URLConnection;
+import java.util.Date;
+import java.util.Random;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import javax.net.ssl.HttpsURLConnection;
 
-import android.net.Uri;
-import android.os.AsyncTask;
 import app.personal_weather.data.Channel;
+import app.personal_weather.data.Forecast;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.basic.DefaultOAuthConsumer;
+
+
+
+
 
 /**
  * The class for getting the weather from the yahoo api
- * which has now shuttered the public call, or not, since it is open again.
+ *
  * @author Christopher D. Harte
  *
  */
@@ -24,7 +34,8 @@ class Yahoo_feed
 {   
     private static Exception error;
     private Weather_Activity this_weather;
-    
+
+
     /**
      * Query the yahoo api and return a JSON of the endpoint. 
      * @param weather The existing instance of the Weather_Activity
@@ -45,8 +56,17 @@ class Yahoo_feed
         My_async task = new My_async(this_weather);
         task.execute(new_location);
     }
+
     private static class My_async extends AsyncTask<String, Void, String>
     {
+        private final String app_id = "";
+        private final String client_id = "";
+        private final String client_secret = "";
+        private final String yahoo_url = "https://weather-ydn-yql.media.yahoo.com/forecastrss";
+        long ts = new Date().getTime() / 1000;
+
+        private final String nounce = get_nounce();
+
         private WeakReference<Weather_Activity> weak_ref;
 
         My_async(Weather_Activity weather)
@@ -56,17 +76,17 @@ class Yahoo_feed
 
         @Override protected String doInBackground(String... params)
         {
-            //The query and endpoint are taken from the yahoo developer site.
-            String query = String.format("select * from weather.forecast where woeid in "
-                                         +"(select woeid from geo.places(1) where text=\"%s\") and u='c'", params[0]);
-
-            String endpoint = String.format("https://query.yahooapis.com/v1/public/yql?q=%s&format=json",
-                                             Uri.encode(query));
+            //Imported a new signpost OAuth library.
+            OAuthConsumer consumer = new DefaultOAuthConsumer(client_id,
+                    client_secret);
 
             try
             {
-                URL           url   = new URL(endpoint);
-                URLConnection conn  = url.openConnection();
+                URL                url   = new URL(yahoo_url + "?" + params[0] + "&format=json&u=c");
+                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                consumer.sign(conn);
+                conn.connect();
+
                 InputStream   input = conn.getInputStream();
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -98,20 +118,33 @@ class Yahoo_feed
 
             try
             {
-                JSONObject data = new JSONObject (result);
-
-                JSONObject q_result = data.optJSONObject("query");
+                JSONObject data     = new JSONObject (result);
 
                 Channel chan = new Channel();
-                chan.populate(q_result.optJSONObject("results").optJSONObject("channel"));
+                chan.populate(data.optJSONObject("current_observation"));
 
-                weak_weather.feed_success(chan);
+                Forecast forc = new Forecast();
+                forc.populate(data.getJSONArray("forecasts"));
+
+                weak_weather.feed_success(chan, forc);
             }
             catch (JSONException e)
             {
                 weak_weather.feed_failure(e);
             }
         }
+    }
+
+    private static String get_nounce()
+    {
+        String nounce;
+        byte[] n = new byte[32];
+        Random r = new Random();
+        r.nextBytes(n);
+        nounce = new String(n).replaceAll("\\W", "");
+
+        return nounce;
+
     }
 }
 

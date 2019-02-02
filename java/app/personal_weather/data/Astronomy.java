@@ -26,5 +26,4 @@ public class Astronomy
         sunrise = data.optString("sunrise");
         sunset = data.optString("sunset");
     }
-    
 }

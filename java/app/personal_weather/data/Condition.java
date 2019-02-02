@@ -30,7 +30,7 @@ public class Condition
     public void populate(JSONObject data)
     {       
         code = data.optInt("code");
-        temp = data.optInt("temp");
+        temp = data.optInt("temperature");
         desc = data.optString("text");
         
     }

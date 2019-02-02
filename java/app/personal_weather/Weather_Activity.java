@@ -1,20 +1,5 @@
 package app.personal_weather;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationServices;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -39,12 +24,28 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import app.personal_weather.data.Astronomy;
 import app.personal_weather.data.Channel;
 import app.personal_weather.data.Condition;
 import app.personal_weather.data.Forecast;
-import app.personal_weather.data.Item;
-import app.personal_weather.data.Units;
 import app.personal_weather.data.Wind;
 
 
@@ -52,11 +53,10 @@ import app.personal_weather.data.Wind;
  * Turns out LocationListener is an interface, this means it cannot be
  * instantiated, only implemented. The activity has to implement it.
  * Undocumented and registered as two seperate bugs on google.
+ * Probably why they deprecated it.
  *
  * @author Christopher D. Harte
  *
- *         https://developer.android.com/training/location/index.html
- *         This is where I am going to have to go to write my own tracking app.
  */
 public class Weather_Activity extends Activity implements ConnectionCallbacks,
                                                           OnConnectionFailedListener
@@ -76,6 +76,9 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
     private List<Address> address_info;
 
     private GoogleApiClient api_client;
+
+    private double latitude;
+    private double longitude;
 
     @Override protected void onCreate(Bundle savedInstanceState)
     {
@@ -109,6 +112,19 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
             }
         });
 
+        //Here be your permissions request, everybody else gets suppressed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            int cluckup1 = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+
+            if (cluckup1 != PackageManager.PERMISSION_GRANTED)
+            {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.ACCESS_NETWORK_STATE}, REQ_CODE);
+            }
+        }
+
         // This might take some time
         dialog = new ProgressDialog(this);
         dialog.setMessage("Give me a few secs...");
@@ -121,6 +137,19 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        FusedLocationProviderClient fused_client = LocationServices.getFusedLocationProviderClient(this);
+        fused_client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>()
+        {
+            @Override public void onSuccess(Location location)
+            {
+                if (location != null)
+                {
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                }
+            }
+        });
     }
 
     @Override protected void onStart()
@@ -142,24 +171,16 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
      *
      * @param con_hint Bundle
      */
+
     @Override public void onConnected(Bundle con_hint)
     {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-        {
-            int cluckup1 = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
-
-            if (cluckup1 != PackageManager.PERMISSION_GRANTED)
-            {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.INTERNET,
-                        Manifest.permission.ACCESS_NETWORK_STATE}, REQ_CODE);
-            }
-        }
-
-        Location location = LocationServices.FusedLocationApi.getLastLocation(api_client);
+        //Bust my balls getting this new api working and the first thing Evil Google do
+        // is deprecate it!
+//        Location location = LocationServices.FusedLocationApi.getLastLocation(api_client);
         Yahoo_feed yahoo_weather = new Yahoo_feed(this);
         Geocoder geo = new Geocoder(this, Locale.getDefault());
 
+        //The location settings were not working on the emulator, so do this.
         //Ho Chi Minh city just because it is unusual
 //        double latitude = 10.777416;
 //        double longitude = 106.639366;
@@ -170,14 +191,8 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 //        double latitude = -38.140693;
 //        double longitude = 176.253784;
         //Local
-        double latitude = 53.5333;
-        double longitude = -2.2833;
-
-        if (location != null)
-        {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-        }
+//        double latitude = 53.5333;
+//        double longitude = -2.2833;
 
         address_info = null;
 
@@ -201,12 +216,11 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         else
         {
             // for yahow This has the format "Manchester, GB" as a single string, or lat long
-            // for wunder it is GB and Manchester as two seperate strings.
-            // In fereign places the city can be stored in AdminArea, but not the uk. So lat long.
-//            String city = address_info.get(0).getLocality();
-//            String country = address_info.get(0).getCountryCode();
-//            String yahoo_location = city + ", " + country;
-            String yahoo_location = "(" + latitude + ", " + longitude + ")"; //Should I want to do it by lat/lon
+            // In fereign places the city can be stored in AdminArea, but that fault lies with yahoo.
+            String city = address_info.get(0).getLocality();
+            String country = address_info.get(0).getCountryCode();
+            String yahoo_location = "location=" + city + "," + country;
+//            String yahoo_location = "lat=" + latitude + "&lon=" + longitude; //Should I want to do it by lat/lon
 
             yahoo_weather.refresh(yahoo_location);
         }
@@ -254,23 +268,17 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
      * Until I put it in a data class of its own.
      *
      * @param channel Channel object
+     * @param forc Forcast object
      */
-    public void feed_success(Channel channel)
+    public void feed_success(Channel channel, Forecast forc)
     {
         dialog.dismiss();
 
         Resources res = getResources();
-//        Current_condition curr_cond = weather_data.getCurr_cond();
-
-        Item item = channel.getItem();
         Wind wind = channel.getWind();
         Astronomy astron = channel.getAstro();
-        Units unit = channel.getUnits();
-        Condition cond = item.getCond();
-        Forecast forecast = item.getForecast();
+        Condition cond = channel.getCondition();
 
-
-        String units = unit.getTemp();
         String sunrise = astron.getSunrise();
         String sunset = astron.getSunset();
 
@@ -281,20 +289,21 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         int temp = cond.getTemp();
         String desc = cond.getDesc();
 
-        String forecast_date = forecast.getDate();
-        String forecast_day = forecast.getDay();
-        String forecast_forc = forecast.getDesc();
-        int forecast_code = forecast.getCode();
-        JSONArray fore_obj = forecast.getCode_obj();
+        String forecast_date = forc.getDate();
+        String forecast_day = forc.getDay();
+        String forecast_forc;
+        int forecast_code = forc.getCode();
+        JSONArray fore_obj = forc.getCode_obj();
 
         // Not everything of use comes from the yahoo api...
         String city = address_info.get(0).getLocality();
         String town = address_info.get(0).getSubLocality();
         String street = address_info.get(0).getThoroughfare();
+        String post_code = address_info.get(0).getPostalCode();
 
         String place = street;
 
-        //We do not always get a street or a town, but we should have a city
+        //We do not always get a street or a town, but we should have a city.
         if (street == null)
         {
             place = town;
@@ -303,7 +312,13 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
             {
                 place = city;
             }
-        }                    
+
+            //if all else fails and city is null
+            if (city == null)
+            {
+                place = post_code;
+            }
+        }
 
         /* Leave all this in for reference
         //Set the backgound.        
@@ -329,9 +344,9 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         {            
             int_image = t_image;
         }
-        
+
         Drawable draw_back_image = res.getDrawable(int_image, getTheme());
-        */
+         */
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -352,16 +367,14 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         forecast_forc = for_locals[forecast_code];
 
         weather_icon.setImageDrawable(icon);
-        temperature.setText(temp + "\u00B0" + units);
+        temperature.setText(temp + "\u00B0");
         chill_factor.setText("(but feels like " + chill + "\u00B0 " + " in a " + speed + "kph wind)");
-        //conditions.setText(desc);
         conditions.setText(display_for_locals);
         location_text_view.setText("Which is not bad for " + place + "\n");
         tomorrow.setText("Tomorrow, " + forecast_day + " " + forecast_date + " will be\n" + forecast_forc);
         astro.setText("Sunrise is at " + sunrise + "\nand sunset is " + sunset);
 
-
-        //Get the strings then concatenate them into an arraylist 
+        //Get the strings then concatenate them into an arraylist
         ArrayList<String> fore_array = new ArrayList<>();
 
         for (int i = 2; i < fore_obj.length(); i++)
@@ -371,9 +384,13 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                 //This is a lot easier than a custon array adapter
                 JSONObject o = (JSONObject) fore_obj.get(i);
 
+                Long d = Long.parseLong(o.getString("date"));
+                SimpleDateFormat df = new SimpleDateFormat("d MMM y", Locale.ENGLISH);
+
                 String oday = o.getString("day");
-                String odate = o.getString("date");
-                String otext = o.getString("text");
+                String odate = df.format(d * 1000);
+                int ocode = o.getInt("code");
+                String otext = for_locals[ocode];
 
                 fore_array.add(oday + " " + odate + " " + otext);
             }
@@ -382,7 +399,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                 e.printStackTrace();
             }
         }
-
 
          /* Depending on orientation we need to use different layouts.
          * Landscape is a textView that goes inside the scrollView layout.
@@ -452,10 +468,10 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
             case R.id.about_app:
                 Intent a = new Intent("app.personal_weather.ABOUT");
                 a.putExtra("title", "Your weather (from yahoo)");
-                a.putExtra("body", "The weather where you are, with some graphics from\n http://vclouds.deviantart.com\n "
-                        + "and responses from the Yahoo weather api."
+                a.putExtra("body", "The weather where you are, with some graphics from http://vclouds.deviantart.com, "
+                        + "the signpost OAuth library and responses from the Yahoo weather api."
                         + "\nThis is just a test piece that takes your location from the gps and uses it to "
-                        + "query the weather api. Rotating your device will cause it to reload.");
+                        + "query the weather api. Rotating your device will cause it to reload.\n");
                 startActivity(a);
                 break;
 
@@ -465,7 +481,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                 break;
 
         }
-
         return false;
     }
 }

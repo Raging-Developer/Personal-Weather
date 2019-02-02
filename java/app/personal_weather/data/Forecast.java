@@ -3,6 +3,9 @@ package app.personal_weather.data;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 //For use with yahoo api
 
 public class Forecast
@@ -27,7 +30,10 @@ public class Forecast
     }
     public String getDate()
     {
-        return date;
+        Long d = Long.parseLong(date);
+        SimpleDateFormat df = new SimpleDateFormat("d MMM y", Locale.ENGLISH);
+        String ds = df.format(d * 1000);
+        return ds;
     }
     public String getDay()
     {
