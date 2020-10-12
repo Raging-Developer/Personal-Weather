@@ -86,15 +86,15 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
-        rel_back            = (RelativeLayout) findViewById(R.id.rel_back);
-        weather_icon        = (ImageView) findViewById(R.id.weather_icon);
-        temperature         = (TextView) findViewById(R.id.temperature_tv);
-        conditions          = (TextView) findViewById(R.id.conditions_tv);
-        location_text_view  = (TextView) findViewById(R.id.location_tv);
-        chill_factor        = (TextView) findViewById(R.id.chill_factor);
-        tomorrow            = (TextView) findViewById(R.id.forecast);
-        astro               = (TextView) findViewById(R.id.sun_up_down);
-        logo_link           = (ImageView) findViewById(R.id.logoView1);
+        rel_back            = findViewById(R.id.rel_back);
+        weather_icon        = findViewById(R.id.weather_icon);
+        temperature         = findViewById(R.id.temperature_tv);
+        conditions          = findViewById(R.id.conditions_tv);
+        location_text_view  = findViewById(R.id.location_tv);
+        chill_factor        = findViewById(R.id.chill_factor);
+        tomorrow            = findViewById(R.id.forecast);
+        astro               = findViewById(R.id.sun_up_down);
+        logo_link           = findViewById(R.id.logoView1);
 
 
         // Because I am using their api, I have to include this, 
@@ -174,9 +174,6 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
     @Override public void onConnected(Bundle con_hint)
     {
-        //Bust my balls getting this new api working and the first thing Evil Google do
-        // is deprecate it!
-//        Location location = LocationServices.FusedLocationApi.getLastLocation(api_client);
         Yahoo_feed yahoo_weather = new Yahoo_feed(this);
         Geocoder geo = new Geocoder(this, Locale.getDefault());
 
@@ -217,10 +214,10 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         {
             // for yahow This has the format "Manchester, GB" as a single string, or lat long
             // In fereign places the city can be stored in AdminArea, but that fault lies with yahoo.
-            String city = address_info.get(0).getLocality();
-            String country = address_info.get(0).getCountryCode();
-            String yahoo_location = "location=" + city + "," + country;
-//            String yahoo_location = "lat=" + latitude + "&lon=" + longitude; //Should I want to do it by lat/lon
+//            String city = address_info.get(0).getLocality();
+//            String country = address_info.get(0).getCountryCode();
+//            String yahoo_location = "location=" + city + "," + country;
+            String yahoo_location = "lat=" + latitude + "&lon=" + longitude; //Should I want to do it by lat/lon
 
             yahoo_weather.refresh(yahoo_location);
         }
@@ -279,15 +276,34 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         Astronomy astron = channel.getAstro();
         Condition cond = channel.getCondition();
 
-        String sunrise = astron.getSunrise();
-        String sunset = astron.getSunset();
+        String sunrise = "sunrise";
+        String sunset = "sunset";
 
-        String chill = wind.getChill();
-        String speed = wind.getSpeed();
+        if (astron != null)
+        {
+            sunrise = astron.getSunrise();
+            sunset = astron.getSunset();
+        }
 
-        int cond_code = cond.getCode();
-        int temp = cond.getTemp();
-        String desc = cond.getDesc();
+        String chill = "chill";
+        String speed = "speed";
+
+        if (wind != null)
+        {
+            chill = wind.getChill();
+            speed = wind.getSpeed();
+        }
+
+        int cond_code = 0;
+        int temp = 0;
+//        String desc = "tornados!";
+
+        if (cond != null)
+        {
+            cond_code = cond.getCode();
+            temp = cond.getTemp();
+//            desc = cond.getDesc();
+        }
 
         String forecast_date = forc.getDate();
         String forecast_day = forc.getDay();
@@ -358,7 +374,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         Drawable draw_back_image = res.getDrawable(R.drawable.night_time, getTheme());
         rel_back.setBackground(draw_back_image);
 
-        //this sets the drawable icon in the format icon_1.png                         
+        //this sets the drawable icon in the format icon_1.png
         int icon_res = res.getIdentifier("drawable/icon_" + cond_code, null, getPackageName());
         Drawable icon = res.getDrawable(icon_res, getTheme());
 
@@ -384,7 +400,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                 //This is a lot easier than a custon array adapter
                 JSONObject o = (JSONObject) fore_obj.get(i);
 
-                Long d = Long.parseLong(o.getString("date"));
+                long d = Long.parseLong(o.getString("date"));
                 SimpleDateFormat df = new SimpleDateFormat("d MMM y", Locale.ENGLISH);
 
                 String oday = o.getString("day");
@@ -408,7 +424,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
         if (device_width > device_height)
         {
-            //Landscape, use string builder with line breaks                        
+            //Landscape, use string builder with line breaks
             StringBuilder non_scroll_view = new StringBuilder();
 
             //Here is your php: foreach ($fore_array as $forcs)
@@ -417,7 +433,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                 non_scroll_view.append(forcs + "\n");
             }
 
-            TextView text_forcs = (TextView) findViewById(R.id.text_forcs);
+            TextView text_forcs = findViewById(R.id.text_forcs);
             text_forcs.setText(non_scroll_view);
         }
         else //Portrait, use my listView
@@ -426,7 +442,7 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
                     R.layout.list_text,
                     fore_array);
 
-            ListView fore_hi_low = (ListView) findViewById(R.id.fore_hi_low);
+            ListView fore_hi_low = findViewById(R.id.fore_hi_low);
             fore_hi_low.setAdapter(fore_adapter);
         }
     }
