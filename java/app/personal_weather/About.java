@@ -12,7 +12,7 @@ public class About extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
         
-        TextView about_text = (TextView)findViewById(R.id.about_text);
+        TextView about_text = findViewById(R.id.about_text);
         
         Bundle b = getIntent().getExtras();
         String title = b.getString("title");

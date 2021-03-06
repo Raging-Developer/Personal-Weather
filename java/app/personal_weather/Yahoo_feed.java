@@ -10,8 +10,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.Date;
-import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -19,8 +17,6 @@ import app.personal_weather.data.Channel;
 import app.personal_weather.data.Forecast;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.basic.DefaultOAuthConsumer;
-
-
 
 
 
@@ -59,13 +55,9 @@ class Yahoo_feed
 
     private static class My_async extends AsyncTask<String, Void, String>
     {
-        private final String app_id = "";
-        private final String client_id = "";
-        private final String client_secret = "";
+        private final String client_id = "dj0yJmk9dlJkNDZ2UzlzRWRZJnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PWU3";
+        private final String client_secret = "f78183fa2a4fd48f55c1820c230af87e901a3540";
         private final String yahoo_url = "https://weather-ydn-yql.media.yahoo.com/forecastrss";
-        long ts = new Date().getTime() / 1000;
-
-        private final String nounce = get_nounce();
 
         private WeakReference<Weather_Activity> weak_ref;
 
@@ -76,13 +68,12 @@ class Yahoo_feed
 
         @Override protected String doInBackground(String... params)
         {
-            //Imported a new signpost OAuth library.
-            OAuthConsumer consumer = new DefaultOAuthConsumer(client_id,
-                    client_secret);
+            //Imported an old signpost OAuth library.
+            OAuthConsumer consumer = new DefaultOAuthConsumer(client_id, client_secret);
 
             try
             {
-                URL                url   = new URL(yahoo_url + "?" + params[0] + "&format=json&u=c");
+                URL               url   = new URL(yahoo_url + "?" + params[0] + "&format=json&u=c");
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                 consumer.sign(conn);
                 conn.connect();
@@ -118,7 +109,7 @@ class Yahoo_feed
 
             try
             {
-                JSONObject data     = new JSONObject (result);
+                JSONObject data = new JSONObject (result);
 
                 Channel chan = new Channel();
                 chan.populate(data.optJSONObject("current_observation"));
@@ -133,18 +124,6 @@ class Yahoo_feed
                 weak_weather.feed_failure(e);
             }
         }
-    }
-
-    private static String get_nounce()
-    {
-        String nounce;
-        byte[] n = new byte[32];
-        Random r = new Random();
-        r.nextBytes(n);
-        nounce = new String(n).replaceAll("\\W", "");
-
-        return nounce;
-
     }
 }
 

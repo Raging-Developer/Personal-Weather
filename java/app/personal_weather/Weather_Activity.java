@@ -174,6 +174,9 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
 
     @Override public void onConnected(Bundle con_hint)
     {
+        //Bust my balls getting this new api working and the first thing Evil Google do
+        // is deprecate it!
+//        Location location = LocationServices.FusedLocationApi.getLastLocation(api_client);
         Yahoo_feed yahoo_weather = new Yahoo_feed(this);
         Geocoder geo = new Geocoder(this, Locale.getDefault());
 
@@ -479,24 +482,25 @@ public class Weather_Activity extends Activity implements ConnectionCallbacks,
         // as you specify a parent activity in AndroidManifest.xml.
         //I have removed settings from the menu
 
-        switch (item.getItemId())
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.about_app)
         {
-            case R.id.about_app:
-                Intent a = new Intent("app.personal_weather.ABOUT");
-                a.putExtra("title", "Your weather (from yahoo)");
-                a.putExtra("body", "The weather where you are, with some graphics from http://vclouds.deviantart.com, "
-                        + "the signpost OAuth library and responses from the Yahoo weather api."
-                        + "\nThis is just a test piece that takes your location from the gps and uses it to "
-                        + "query the weather api. Rotating your device will cause it to reload.\n");
-                startActivity(a);
-                break;
+            Intent a = new Intent("app.personal_weather.ABOUT");
+            a.putExtra("title", "Your weather (from yahoo)");
+            a.putExtra("body", "The weather where you are, with some graphics from http://vclouds.deviantart.com, "
+                    + "the signpost OAuth library and responses from the Yahoo weather api."
+                    + "\nThis is just a test piece that takes your location from the gps and uses it to "
+                    + "query the weather api. Rotating your device will cause it to reload.\n");
+            startActivity(a);
 
             //No home icon as per the new evil rules from googling
-            case android.R.id.home:
-                finish();
-                break;
-
         }
+        else if (itemId == android.R.id.home)
+        {
+            finish();
+        }
+
         return false;
     }
 }
